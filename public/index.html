@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fitlife - Personal Fitness &amp; Wellness</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(180deg, #0d1620 0%, #1a2332 100%);
+      min-height: 100vh;
+      color: #fff;
+      overflow: hidden;
+    }
+
+    .screen { position: absolute; width: 100%; height: 100vh; display: flex; flex-direction: column; transition: opacity 0.3s; }
+    .screen.hidden { opacity: 0; pointer-events: none; }
+
+    .status-bar { display: flex; justify-content: space-between; padding: 12px 20px; font-size: 14px; color: #94a3b8; }
+    .signals { display: flex; gap: 4px; }
+    .signals i { width: 6px; height: 6px; background: #1FC7D4; border-radius: 2px; display: block; }
+
+    .header { display: flex; align-items: center; gap: 15px; padding: 15px 20px; background: rgba(26, 35, 50, 0.5); }
+    .header button { background: none; border: none; color: #fff; font-size: 20px; cursor: pointer; }
+    .header h2 { font-size: 18px; font-weight: 600; }
+
+    .content { flex: 1; padding: 30px 25px; overflow-y: auto; }
+    .content.center { display: flex; flex-direction: column; justify-content: center; }
+
+    .logo-img {
+      width: 120px;
+      height: 120px;
+      margin: 0 auto 20px;
+      display: block;
+      object-fit: contain;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+      padding: 10px;
+      border-radius: 50%;
+    }
+
+    h1 { font-size: 32px; text-align: center; margin-bottom: 8px; }
+    .title-lg { font-size: 28px; margin-bottom: 12px; }
+    .subtitle { text-align: center; color: #94a3b8; font-size: 14px; margin-bottom: 25px; }
+
+    label { display: block; font-size: 14px; margin: 15px 0 8px; font-weight: 500; }
+    .input { width: 100%; padding: 16px 20px; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(148, 163, 184, 0.2); border-radius: 12px; color: #fff; font-size: 15px; margin-bottom: 8px; outline: none; }
+    .input:focus { border-color: #1FC7D4; background: rgba(15, 23, 42, 0.9); }
+    .input::placeholder { color: #64748b; }
+
+    select { width: 100%; padding: 16px 20px; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(148, 163, 184, 0.2); border-radius: 12px; color: #fff; font-size: 15px; margin-bottom: 8px; outline: none; cursor: pointer; }
+    select:focus { border-color: #1FC7D4; background: rgba(15, 23, 42, 0.9); }
+    select option { background: #1a2332; color: #fff; }
+
+    .link-right { text-align: right; display: block; color: #94a3b8; font-size: 13px; margin: 8px 0 16px; text-decoration: none; }
+    .link-center { display: block; text-align: center; color: #1FC7D4; margin-top: 20px; text-decoration: none; }
+
+    .btn-primary { width: 100%; padding: 16px; background: linear-gradient(135deg, #1FC7D4, #14b8c7); border: none; border-radius: 12px; color: #fff; font-size: 16px; font-weight: 600; cursor: pointer; margin: 10px 0; }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(31, 199, 212, 0.4); }
+
+    .btn-secondary { width: 100%; padding: 14px; background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(148, 163, 184, 0.2); border-radius: 12px; color: #fff; font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; }
+    .google-icon { background: linear-gradient(#4285F4, #34A853, #FBBC05, #EA4335); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: bold; }
+
+    .btn-muted { width: 100%; padding: 16px; background: rgba(31, 199, 212, 0.2); border: 1px solid rgba(148, 163, 184, 0.2); border-radius: 12px; color: #94a3b8; font-size: 16px; font-weight: 600; cursor: pointer; margin: 20px 0; }
+    .btn-muted:hover { background: rgba(31, 199, 212, 0.3); color: #fff; }
+
+    .btn-danger { width: 100%; padding: 14px; background: transparent; border: 2px solid #ef4444; border-radius: 12px; color: #ef4444; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 20px; }
+
+    .divider { text-align: center; color: #64748b; font-size: 13px; margin: 15px 0; }
+    .text-center { text-align: center; color: #94a3b8; font-size: 14px; margin-top: 15px; }
+    .text-center a { color: #1FC7D4; text-decoration: none; font-weight: 600; }
+
+    .greeting { font-size: 24px; margin-bottom: 5px; }
+
+    .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0; }
+    .stat { background: rgba(26, 35, 50, 0.6); padding: 20px; border-radius: 15px; text-align: center; }
+    .stat .icon { font-size: 24px; }
+    .stat h3 { font-size: 28px; color: #1FC7D4; margin: 10px 0 5px; }
+    .stat p { font-size: 12px; color: #94a3b8; line-height: 1.4; }
+
+    .card { display: flex; align-items: center; gap: 15px; background: rgba(26, 35, 50, 0.6); padding: 18px; border-radius: 15px; margin: 12px 0; cursor: pointer; transition: all 0.3s; }
+    .card:hover { background: rgba(26, 35, 50, 0.8); }
+    .card.primary { background: linear-gradient(135deg, rgba(31, 199, 212, 0.2), rgba(20, 184, 199, 0.2)); }
+    .card span:first-child { font-size: 28px; }
+    .card div { flex: 1; }
+    .card b { display: block; font-size: 16px; margin-bottom: 4px; }
+    .card p { font-size: 13px; color: #94a3b8; }
+    .card .arrow { font-size: 20px; color: #1FC7D4; }
+
+    .workout-card { background: rgba(26, 35, 50, 0.6); padding: 20px; border-radius: 15px; margin: 12px 0; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+    .workout-card b { display: block; font-size: 16px; margin-bottom: 8px; }
+    .workout-card p { font-size: 12px; color: #94a3b8; line-height: 1.6; }
+    .workout-card .arrow { color: #1FC7D4; font-size: 18px; }
+
+    .bottom-nav { display: flex; justify-content: space-around; background: rgba(26, 35, 50, 0.8); border-top: 1px solid rgba(255, 255, 255, 0.05); padding: 12px 0; }
+    .bottom-nav a { flex: 1; text-align: center; font-size: 10px; color: #64748b; cursor: pointer; line-height: 1.8; text-decoration: none; }
+    .bottom-nav a.active { color: #1FC7D4; }
+
+    .avatar { width: 80px; height: 80px; background: #1FC7D4; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 40px; margin: 20px auto; }
+
+    .menu { margin: 30px 0; }
+    .menu-item { background: rgba(26, 35, 50, 0.6); padding: 18px 20px; border-radius: 12px; margin: 12px 0; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+    .menu-item:hover { background: rgba(26, 35, 50, 0.8); }
+    .menu-item span { color: #1FC7D4; font-size: 18px; }
+
+    .member { background: rgba(26, 35, 50, 0.6); padding: 20px; border-radius: 15px; text-align: center; margin: 20px 0; }
+    .member p { color: #94a3b8; font-size: 13px; margin-bottom: 5px; }
+    .member h3 { color: #1FC7D4; font-size: 18px; }
+
+    .progress-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
+    .prog-card { background: rgba(26, 35, 50, 0.6); padding: 25px; border-radius: 15px; text-align: center; }
+    .prog-card span { font-size: 24px; }
+    .prog-card h2 { font-size: 32px; color: #1FC7D4; margin: 12px 0 5px; }
+    .prog-card p { font-size: 12px; color: #94a3b8; line-height: 1.4; }
+
+    .chart-section { background: rgba(26, 35, 50, 0.6); padding: 20px; border-radius: 15px; margin-bottom: 20px; }
+    .chart-section h3 { margin-bottom: 20px; font-size: 16px; }
+    .chart { display: flex; justify-content: space-around; align-items: flex-end; height: 150px; gap: 8px; }
+    .chart div { flex: 1; background: #1FC7D4; border-radius: 8px 8px 0 0; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 5px; font-size: 11px; color: #0d1620; font-weight: bold; }
+
+    .goals { background: rgba(26, 35, 50, 0.6); padding: 20px; border-radius: 15px; }
+    .goals h3 { margin-bottom: 20px; font-size: 16px; }
+    .goal-item { display: flex; justify-content: space-between; margin: 15px 0 8px; font-size: 14px; }
+    .progress-bar { height: 8px; background: rgba(148, 163, 184, 0.2); border-radius: 10px; overflow: hidden; margin-bottom: 15px; }
+    .progress-bar div { height: 100%; background: #1FC7D4; border-radius: 10px; }
+
+    @media (max-width: 480px) {
+      .content { padding: 20px 15px; }
+      h1 { font-size: 28px; }
+      .stat h3 { font-size: 24px; }
+    }
+  </style>
+</head>
+<body>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const supabaseUrl = 'https://etapydundvbszzsofntb.supabase.co';
+const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV0YXB5ZHVuZHZic3p6c29mbnRiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzMTQ5ODMsImV4cCI6MjA4Njg5MDk4M30.XVVVhKq8jwbbraFmpQldHdMDuWesPgemg0aPojuMfsU';
+const { createClient } = supabase;
+const supabaseClient = createClient(supabaseUrl, supabaseAnonKey);
+
+// Store current user globally
+let currentUser = null;
+
+// Check auth state on page load
+supabaseClient.auth.getSession().then(({ data: { session } }) => {
+  if (session) {
+    currentUser = session.user;
+    console.log('User already logged in:', currentUser);
+  }
+});
+
+// Listen to auth changes
+supabaseClient.auth.onAuthStateChange((event, session) => {
+  if (session) {
+    currentUser = session.user;
+    // Update name like your email login
+    const userName = session.user.user_metadata?.full_name || session.user.email.split('@')[0];
+    document.getElementById('user-name').textContent = userName;
+    show('home');
+  } else {
+    currentUser = null;
+    show('login');
+  }
+});
+
+</script>
+
+<div id="app">
+  <!-- Login Screen -->
+  <div class="screen" id="login">
+    <div class="status-bar"><span>9:41</span><div class="signals">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1FC7D4" stroke-width="2"><rect x="1" y="5" width="22" height="14" rx="2"/><path d="M1 10h22"/></svg>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1FC7D4" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1" fill="#1FC7D4"/></svg>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1FC7D4" stroke-width="2"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M12 18h.01"/></svg>
+    </div></div>
+    <div class="content center">
+      <img src="https://agi-prod-file-upload-public-main-use1.s3.amazonaws.com/825eb54a-f576-4e43-a487-c1bfdcbe3f50" alt="FitLife Logo" class="logo-img">
+      <h1>Fitlife</h1>
+      <p class="subtitle">Personal Fitness &amp; Wellness</p>
+      <input type="email" id="login-email" placeholder="Email" class="input">
+      <input type="password" id="login-password" placeholder="Password" class="input">
+      <a href="#" class="link-right" onclick="show('reset')">Forgot Password?</a>
+      <button class="btn-primary" onclick="signIn()">Sign In</button>
+      <div class="divider">or</div>
+      <button class="btn-secondary" onclick="googleSignIn()">
+  <span class="google-icon">G</span> Login with Google
+</button>
+      <p class="text-center">Don't have an account? <a href="#" onclick="show('signup')">Sign Up</a></p>
+    </div>
+  </div>
+
+  <!-- Signup Screen -->
+  <div class="screen hidden" id="signup">
+    <div class="status-bar"><span>9:41</span><div class="signals"><i></i><i></i><i></i></div></div>
+    <div class="header"><button onclick="show('login')">←</button><h2>Create Account</h2></div>
+    <div class="content">
+      <h1>Fitlife</h1>
+      <p class="subtitle">Personal Fitness &amp; Wellness</p>
+      <label>Full Name</label>
+      <input type="text" id="signup-name" placeholder="Enter your full name" class="input">
+      <label>Email Address</label>
+      <input type="email" id="signup-email" placeholder="Enter your email" class="input">
+      <label>Password</label>
+      <input type="password" id="signup-password" placeholder="Create a password" class="input">
+      <label>Confirm Password</label>
+      <input type="password" id="signup-confirm" placeholder="Re-enter your password" class="input">
+      <button class="btn-muted" onclick="signUp()">Create Account</button>
+      <p class="text-center">Already have an account? <a href="#" onclick="show('login')">Sign In</a></p>
+    </div>
+  </div>
+
+  <!-- Reset Password -->
+  <div class="screen hidden" id="reset">
+    <div class="status-bar"><span>9:41</span><div class="signals"><i></i><i></i><i></i></div></div>
+    <div class="header"><button onclick="show('login')">←</button><h2>Reset Password</h2></div>
+    <div class="content">
+      <h1 class="title-lg">Forgot Password?</h1>
+      <p class="subtitle">Enter your email and we'll send you a link to reset your password.</p>
+      <label>Email Address</label>
+      <input type="email" placeholder="Enter your email" class="input">
+      <button class="btn-muted">Send Reset Link</button>
+      <a href="#" class="link-center" onclick="show('login')">Back to Login</a>
+    </div>
+  </div>
+
+  <!-- Home Screen -->
+  <div class="screen hidden" id="home">
+    <div class="status-bar"><span>9:41</span><div class="signals"><i></i><i></i><i></i></div></div>
+    <div class="content">
+      <h1 class="greeting">Good Morning, <span id="user-name">Alex</span></h1>
+      <p class="subtitle">Let's crush your goals today!</p>
+      <div class="stats">
+        <div class="stat"><span class="icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1FC7D4" stroke-width="2"><path d="M6.5 6.5h11M6.5 17.5h11M6.5 12h11"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="6.5" r="2.5"/><circle cx="6.5" cy="17.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg></span><h3>3</h3><p>Workouts<br>This week</p></div>
+        <div class="stat"><span class="icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1FC7D4" stroke-width="2"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg></span><h3>1,240</h3><p>Calories<br>Burned today</p></div>
+        <div class="stat"><span class="icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1FC7D4" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><h3>8,432</h3><p>Steps<br>Today</p></div>
+        <div class="stat"><span class="icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1FC7D4" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span><h3>45m</h3><p>Active<br>Today</p></div>
+      </div>
+      <div class="card" onclick="show('log-meal')"><span><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span><div><b>Log Meal</b><p>Track your nutrition</p></div><span class="arrow">›</span></div>
+      <div class="card primary" onclick="show('workouts')"><span><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6.5 6.5h11M6.5 17.5h11M6.5 12h11"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="6.5" r="2.5"/><circle cx="6.5" cy="17.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg></span><div><b>Start Workout</b><p>Begin your training</p></div><span class="arrow">›</span></div>
+      <div class="card" onclick="show('ai-coach')"><span><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83"/><circle cx="12" cy="12" r="3"/></svg></span><div><b>AI Fitness Coach</b><p>Get Personalized</p></div><span class="arrow">›</span></div>
+    </div>
+    <nav class="bottom-nav">
+      <a class="active" onclick="show('home')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><br>Home</a>
+      <a onclick="show('workouts')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6.5 6.5h11M6.5 17.5h11M6.5 12h11"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="6.5" r="2.5"/></svg><br>Workouts</a>
+      <a onclick="show('progress')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg><br>Progress</a>
+      <a onclick="show('profile')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><br>Profile</a>
+    </nav>
+  </div>
+
+  <!-- Workouts Screen -->
+  <div class="screen hidden" id="workouts">
+    <div class="status-bar"><span>9:41</span><div class="signals"><i></i><i></i><i></i></div></div>
+    <div class="header"><button onclick="show('home')">←</button><h2>Workouts</h2></div>
+    <div class="content">
+      <div class="workout-card" onclick="show('start-workout')"><div><b>Full Body Strength</b><p>⏱️ 45 min  📊 Intermediate<br>8 exercises • Upper &amp; Lower body</p></div><span class="arrow">▶</span></div>
+      <div class="workout-card"><div><b>Cardio Blast</b><p>⏱️ 30 min  📊 Beginner<br>6 exercises • High intensity</p></div><span class="arrow">▶</span></div>
+      <div class="workout-card"><div><b>Yoga Flow</b><p>⏱️ 60 min  📊 All Levels<br>12 poses • Flexibility &amp; Balance</p></div><span class="arrow">▶</span></div>
+      <div class="workout-card"><div><b>HIIT Training</b><p>⏱️ 25 min  📊 Advanced<br>10 exercises • Maximum burn</p></div><span class="arrow">▶</span></div>
+    </div>
+    <nav class="bottom-nav">
+      <a onclick="show('home')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><br>Home</a>
+      <a class="active" onclick="show('workouts')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6.5 6.5h11M6.5 17.5h11M6.5 12h11"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="6.5" r="2.5"/><circle cx="6.5" cy="17.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg><br>Workouts</a>
+      <a onclick="show('progress')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg><br>Progress</a>
+      <a onclick="show('profile')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><br>Profile</a>
+    </nav>
+  </div>
+
+  <!-- Profile Screen -->
+  <div class="screen hidden" id="profile">
+    <div class="status-bar"><span>9:41</span><div class="signals"><i></i><i></i><i></i></div></div>
+    <div class="header"><button onclick="show('home')">←</button><h2>Profile</h2></div>
+    <div class="content center">
+      <div class="avatar"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#0d1620" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+      <h2>Celestino</h2>
+      <p class="subtitle">celestino@example.com</p>
+      <div class="menu">
+        <div class="menu-item" onclick="show('personal-info')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Personal Information <span>›</span></div>
+        <div class="menu-item" onclick="show('fitness-goals')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg> Fitness Goals <span>›</span></div>
+        <div class="menu-item" onclick="show('activity-settings')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 6v6M4.22 4.22l4.24 4.25m5.07 5.07l4.24 4.24M1 12h6m6 0h6M4.22 19.78l4.24-4.24m5.07-5.07l4.24-4.24"/></svg> Activity Settings <span>›</span></div>
+        <div class="menu-item" onclick="show('privacy')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Privacy &amp; Security <span>›</span></div>
+      </div>
+      <div class="member"><p>Member Since</p><h3>January 2025</h3></div>
+      <button class="btn-danger" onclick="signOut()">Log Out</button>
+    </div>
+    <nav class="bottom-nav">
+      <a onclick="show('home')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><br>Home</a>
+      <a onclick="show('workouts')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6.5 6.5h11M6.5 17.5h11M6.5 12h11"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="6.5" r="2.5"/><circle cx="6.5" cy="17.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg><br>Workouts</a>
+      <a onclick="show('progress')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg><br>Progress</a>
+      <a class="active" onclick="show('profile')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><br>Profile</a>
+    </nav>
+  </div>
+
+  <!-- Progress Screen -->
+  <div class="screen hidden" id="progress">
+    <div class="status-bar"><span>9:41</span><div class="signals"><i></i><i></i><i></i></div></div>
+    <div class="header"><button onclick="show('home')">←</button><h2>Progress</h2></div>
+    <div class="content">
+      <div class="progress-cards">
+        <div class="prog-card"><span><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1FC7D4" stroke-width="2"><path d="M6.5 6.5h11M6.5 17.5h11M6.5 12h11"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="6.5" r="2.5"/><circle cx="6.5" cy="17.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg></span><h2>3</h2><p>This Week<br>Workouts</p></div>
+        <div class="prog-card"><span><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1FC7D4" stroke-width="2"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg></span><h2>1,240</h2><p>Total<br>Calories burned</p></div>
+      </div>
+      <div class="chart-section"><h3>Weekly Activity</h3><div class="chart"><div style="height:40%">Mon</div><div style="height:70%">Tue</div><div style="height:80%">Wed</div><div style="height:50%">Thu</div><div style="height:85%">Fri</div><div style="height:60%">Sat</div><div style="height:30%">Sun</div></div></div>
+      <div class="goals"><h3>Weekly Goals</h3><div class="goal-item"><span>Workouts</span><span>3 / 5</span></div><div class="progress-bar"><div style="width:60%"></div></div><div class="goal-item"><span>Calories Burned</span><span>1240 / 2,000</span></div><div class="progress-bar"><div style="width:62%"></div></div></div>
+    </div>
+    <nav class="bottom-nav">
+      <a onclick="show('home')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><br>Home</a>
+      <a onclick="show('workouts')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6.5 6.5h11M6.5 17.5h11M6.5 12h11"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="6.5" r="2.5"/><circle cx="6.5" cy="17.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg><br>Workouts</a>
+      <a class="active" onclick="show('progress')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg><br>Progress</a>
+      <a onclick="show('profile')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><br>Profile</a>
+    </nav>
+  </div>
+
+  <!-- Log Meal Screen -->
+  <div class="screen hidden" id="log-meal">
+    <div class="status-bar"><span>9:41</span><div class="signals"><i></i><i></i><i></i></div></div>
+    <div class="header"><button onclick="show('home')">←</button><h2>Log Meal</h2></div>
+    <div class="content">
+      <label>Meal Type</label>
+      <select class="input" id="meal-type">
+        <option>Breakfast</option>
+        <option>Lunch</option>
+        <option>Dinner</option>
+        <option>Snack</option>
+      </select>
+      <label>Food Item</label>
+      <input type="text" id="food-item" placeholder="Enter food name" class="input">
+      <label>Calories</label>
+      <input type="number" id="calories" placeholder="Enter calories" class="input">
+      <label>Protein (g)</label>
+      <input type="number" id="protein" placeholder="Enter protein" class="input">
+      <label>Carbs (g)</label>
+      <input type="number" id="carbs" placeholder="Enter carbs" class="input">
+      <label>Fat (g)</label>
+      <input type="number" id="fat" placeholder="Enter fat" class="input">
+      <button class="btn-primary" onclick="logMeal()">Log Meal</button>
+    </div>
+  </div>
+
+  <!-- AI Fitness Coach Screen -->
+  <div class="screen hidden" id="ai-coach">
+    <div class="status-bar"><span>9:41</span><div class="signals"><i></i><i></i><i></i></div></div>
+    <div class="header"><button onclick="show('home')">←</button><h2>AI Fitness Coach</h2></div>
+    <div class="content" style="padding-bottom: 80px;">
+      <div style="text-align: center; margin: 20px 0;">
+        <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="#1FC7D4" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4M8 12h.01M12 12h.01M16 12h.01"/></svg>
+        <h2 style="margin-top: 10px;">Your AI Coach</h2>
+        <p class="subtitle">Powered by Gemini AI</p>
+      </div>
+
+      <div id="chatMessages" style="max-height: calc(100vh - 350px); overflow-y: auto; margin-bottom: 20px;">
+        <div style="background: rgba(31, 199, 212, 0.1); padding: 15px; border-radius: 12px; margin-bottom: 15px;">
+          <p style="color: #94a3b8; margin-bottom: 10px; font-size: 13px;"><b>AI Coach</b></p>
+          <p style="line-height: 1.6;">Hello! I'm your personal AI fitness coach. I can help you with workout plans, nutrition advice, exercise form tips, and answer any fitness questions. What would you like to know?</p>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+        <button onclick="askAI('Create a workout plan for muscle gain')" style="padding: 10px; background: rgba(31, 199, 212, 0.2); border: 1px solid rgba(31, 199, 212, 0.4); border-radius: 8px; color: #fff; font-size: 12px; cursor: pointer;">💪 Workout Plan</button>
+        <button onclick="askAI('What should I eat for muscle recovery?')" style="padding: 10px; background: rgba(31, 199, 212, 0.2); border: 1px solid rgba(31, 199, 212, 0.4); border-radius: 8px; color: #fff; font-size: 12px; cursor: pointer;">🥗 Nutrition Tips</button>
+        <button onclick="askAI('How do I improve my squat form?')" style="padding: 10px; background: rgba(31, 199, 212, 0.2); border: 1px solid rgba(31, 199, 212, 0.4); border-radius: 8px; color: #fff; font-size: 12px; cursor: pointer;">🎯 Form Check</button>
+        <button onclick="askAI('How can I stay motivated?')" style="padding: 10px; background: rgba(31, 199, 212, 0.2); border: 1px solid rgba(31, 199, 212, 0.4); border-radius: 8px; color: #fff; font-size: 12px; cursor: pointer;">⚡ Motivation</button>
+      </div>
+
+      <div style="position: fixed; bottom: 60px; left: 0; right: 0; max-width: 500px; margin: 0 auto; padding: 15px 20px; background: rgba(26, 35, 50, 0.95); border-top: 1px solid rgba(148, 163, 184, 0.2);">
+        <div style="display: flex; gap: 10px; align-items: center;">
+          <input type="text" id="aiInput" placeholder="Ask your fitness question..." style="flex: 1; padding: 12px 15px; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(148, 163, 184, 0.2); border-radius: 12px; color: #fff; font-size: 14px; outline: none;" onkeypress="if(event.key==='Enter') sendMessage()">
+          <button onclick="sendMessage()" style="padding: 12px 20px; background: linear-gradient(135deg, #1FC7D4, #14b8c7); border: none; border-radius: 12px; color: #fff; font-weight: 600; cursor: pointer; min-width: 80px;">Send</button>
+        </div>
+        <p style="font-size: 11px; color: #64748b; margin-top: 8px; text-align: center;">Powered by Google Gemini AI</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Personal Information Screen -->
+  <div class="screen hidden" id="personal-info">
+    <div class="status-bar"><span>9:41</span><div class="signals"><i></i><i></i><i></i></div></div>
+    <div class="header"><button onclick="show('profile')">←</button><h2>Personal Information</h2></div>
+    <div class="content">
+      <label>Full Name</label>
+      <input type="text" placeholder="Celestino" class="input">
+      <label>Email Address</label>
+      <input type="email" placeholder="celestino@example.com" class="input">
+      <label>Phone Number</label>
+      <input type="tel" placeholder="+63 (917) 123-4567" class="input">
+      <label>Date of Birth</label>
+      <input type="date" class="input">
+      <label>Gender</label>
+      <select class="input">
+        <option>Male</option>
+        <option>Female</option>
+        <option>Other</option>
+      </select>
+      <button class="btn-primary" onclick="show('profile')">Save Changes</button>
+    </div>
+  </div>
+
+  <!-- Fitness Goals Screen -->
+  <div class="screen hidden" id="fitness-goals">
+    <div class="status-bar"><span>9:41</span><div class="signals"><i></i><i></i><i></i></div></div>
+    <div class="header"><button onclick="show('profile')">←</button><h2>Fitness Goals</h2></div>
+    <div class="content">
+      <label>Primary Goal</label>
+      <select class="input">
+        <option>Weight Loss</option>
+        <option>Muscle Gain</option>
+        <option>Endurance</option>
+        <option>Flexibility</option>
+      </select>
+      <label>Target Weight (lbs)</label>
+      <input type="number" placeholder="180" class="input">
+      <label>Workouts Per Week</label>
+      <select class="input">
+        <option>3-4 times</option>
+        <option>5-6 times</option>
+        <option>7 times</option>
+      </select>
+      <label>Duration Per Workout</label>
+      <select class="input">
+        <option>30 minutes</option>
+        <option>45 minutes</option>
+        <option>60+ minutes</option>
+      </select>
+      <button class="btn-primary" onclick="show('profile')">Update Goals</button>
+    </div>
+  </div>
+
+  <!-- Activity Settings Screen -->
+  <div class="screen hidden" id="activity-settings">
+    <div class="status-bar"><span>9:41</span><div class="signals"><i></i><i></i><i></i></div></div>
+    <div class="header"><button onclick="show('profile')">←</button><h2>Activity Settings</h2></div>
+    <div class="content">
+      <label style="margin-top: 20px;">Default Difficulty Level</label>
+      <div style="display: flex; gap: 10px; margin-bottom: 30px;">
+        <button style="flex: 1; padding: 12px; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(148, 163, 184, 0.2); border-radius: 8px; color: #fff; cursor: pointer; font-weight: 600;">Beginner</button>
+        <button style="flex: 1; padding: 12px; background: #1FC7D4; border: none; border-radius: 8px; color: #0d1620; cursor: pointer; font-weight: 600;">Intermediate</button>
+        <button style="flex: 1; padding: 12px; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(148, 163, 184, 0.2); border-radius: 8px; color: #fff; cursor: pointer; font-weight: 600;">Advanced</button>
+      </div>
+      <label>Default Workout Duration (minutes)</label>
+      <input type="number" value="45" class="input" style="margin-bottom: 30px;">
+      <div style="display: flex; gap: 10px;">
+        <button class="btn-secondary" onclick="show('profile')" style="flex: 1;">Cancel</button>
+        <button class="btn-primary" onclick="show('profile')" style="flex: 1;">Save Settings</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Privacy & Security Screen -->
+  <div class="screen hidden" id="privacy">
+    <div class="status-bar"><span>9:41</span><div class="signals"><i></i><i></i><i></i></div></div>
+    <div class="header"><button onclick="show('profile')">←</button><h2>Privacy &amp; Security</h2></div>
+    <div class="content">
+      <h3 style="margin: 20px 0 15px; font-size: 16px;">Security</h3>
+      <div style="margin-top:20px;">
+        <button style="width:100%;padding:15px;background:#2a3342;color:#fff;border:none;border-radius:12px;font-weight:bold;cursor:pointer;margin-bottom:10px;">Change Password</button>
+      </div>
+      <h3 style="margin: 30px 0 15px; font-size: 16px;">Privacy</h3>
+      <div class="menu" style="margin: 0;">
+        <div class="menu-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> Privacy Policy <span>›</span></div>
+        <div class="menu-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> Terms of Service <span>›</span></div>
+      </div>
+      <h3 style="margin: 30px 0 15px; font-size: 16px;">Account</h3>
+      <div style="margin-top:20px;">
+        <button style="width:100%;padding:15px;background:#dc3545;color:#fff;border:none;border-radius:12px;font-weight:bold;cursor:pointer;" onclick="show('login')">Delete Account</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Start Workout Screen -->
+  <div class="screen hidden" id="start-workout">
+    <div class="status-bar"><span>9:41</span><div class="signals"><i></i><i></i><i></i></div></div>
+    <div class="header"><button onclick="show('workouts')">←</button><h2>Full Body Strength</h2></div>
+    <div class="content center">
+      <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="#1FC7D4" stroke-width="2" style="margin: 20px 0;"><path d="M6.5 6.5h11M6.5 17.5h11M6.5 12h11"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="6.5" r="2.5"/><circle cx="6.5" cy="17.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>
+      <h2>Full Body Strength</h2>
+      <p class="subtitle">45 minutes • Intermediate</p>
+      <div style="background: rgba(31, 199, 212, 0.1); padding: 20px; border-radius: 12px; margin: 20px 0; text-align: left;">
+        <p><b>Exercise 1:</b> Warm-up (5 min)</p>
+        <p style="color: #8892a6; margin-top: 10px;"><b>Exercise 2:</b> Push-ups (3x8)</p>
+        <p style="color: #8892a6; margin-top: 10px;"><b>Exercise 3:</b> Squats (3x10)</p>
+        <p style="color: #8892a6; margin-top: 10px;"><b>Exercise 4:</b> Deadlifts (3x6)</p>
+      </div>
+      <button class="btn-primary" onclick="show('home')">Start Workout</button>
+      <button class="btn-secondary" onclick="show('workouts')">Back</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  async function googleSignIn() {
+  const { data, error } = await supabaseClient.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: window.location.origin  // Back to your app after auth
+    }
+  });
+  
+  if (error) alert('Google login failed: ' + error.message);
+}
+
+// Authentication Functions
+async function signUp() {
+  const email = document.getElementById('signup-email').value;
+  const password = document.getElementById('signup-password').value;
+  const confirmPassword = document.getElementById('signup-confirm').value;
+  const name = document.getElementById('signup-name').value;
+
+  if (password !== confirmPassword) {
+    alert('Passwords do not match!');
+    return;
+  }
+
+  const { data, error } = await supabaseClient.auth.signUp({
+    email,
+    password,
+    options: {
+      data: {
+        full_name: name
+      }
+    }
+  });
+
+  if (error) {
+    alert('Signup failed: ' + error.message);
+  } else {
+    alert('Account created! Please check your email to verify your account.');
+    show('login');
+  }
+}
+
+async function signIn() {
+  const email = document.getElementById('login-email').value;
+  const password = document.getElementById('login-password').value;
+
+  if (!email || !password) {
+    alert('Please enter both email and password');
+    return;
+  }
+
+  const { data, error } = await supabaseClient.auth.signInWithPassword({
+    email,
+    password,
+  });
+
+  if (error) {
+    alert('Login failed: ' + error.message);
+  } else {
+    currentUser = data.user;
+    console.log('Signed in:', currentUser);
+    
+    // Update user name on home screen
+    const userName = data.user.user_metadata?.full_name || email.split('@')[0];
+    const nameElement = document.getElementById('user-name');
+    if (nameElement) {
+      nameElement.textContent = userName;
+    }
+    
+    show('home');
+  }
+}
+
+async function signOut() {
+  const { error } = await supabaseClient.auth.signOut();
+  if (error) {
+    alert('Sign out failed: ' + error.message);
+  } else {
+    currentUser = null;
+    show('login');
+  }
+}
+
+// Meal Logging Function
+async function logMeal() {
+  // Check if user is logged in
+  if (!currentUser) {
+    alert('Please sign in first to log meals!');
+    show('login');
+    return;
+  }
+
+  const mealType = document.getElementById('meal-type').value;
+  const foodItem = document.getElementById('food-item').value;
+  const calories = parseInt(document.getElementById('calories').value);
+  const protein = parseInt(document.getElementById('protein').value) || null;
+  const carbs = parseInt(document.getElementById('carbs').value) || null;
+  const fat = parseInt(document.getElementById('fat').value) || null;
+
+  // Validate inputs
+  if (!foodItem || !calories) {
+    alert('Please enter food item and calories');
+    return;
+  }
+
+  console.log('Logging meal for user:', currentUser.id);
+  console.log('Meal data:', { mealType, foodItem, calories, protein, carbs, fat });
+
+  const { data, error } = await supabaseClient.from('meals').insert({
+    user_id: currentUser.id,
+    meal_type: mealType,
+    food_item: foodItem,
+    calories: calories,
+    protein: protein,
+    carbs: carbs,
+    fat: fat
+  });
+
+  if (error) {
+    console.error('Error logging meal:', error);
+    alert('Failed to log meal: ' + error.message);
+  } else {
+    console.log('Meal logged successfully:', data);
+    alert('Meal logged successfully!');
+    
+    // Clear inputs
+    document.getElementById('food-item').value = '';
+    document.getElementById('calories').value = '';
+    document.getElementById('protein').value = '';
+    document.getElementById('carbs').value = '';
+    document.getElementById('fat').value = '';
+    
+    show('home');
+  }
+}
+
+// Screen navigation function
+function show(screenId) {
+  const screens = document.querySelectorAll('.screen');
+  screens.forEach(screen => {
+    if (screen.id === screenId) {
+      screen.classList.remove('hidden');
+    } else {
+      screen.classList.add('hidden');
+    }
+  });
+  
+  const navLinks = document.querySelectorAll('.bottom-nav a');
+  navLinks.forEach(link => {
+    link.classList.remove('active');
+    const clickHandler = link.getAttribute('onclick');
+    if (clickHandler && clickHandler.includes(`'${screenId}'`)) {
+      link.classList.add('active');
+    }
+  });
+}
+
+// Handle difficulty level selection in Activity Settings
+document.addEventListener('DOMContentLoaded', function() {
+  const difficultyButtons = document.querySelectorAll('#activity-settings button[style*="flex: 1"]');
+  difficultyButtons.forEach((button, index) => {
+    if (index < 3) {
+      button.addEventListener('click', function() {
+        difficultyButtons.forEach(btn => {
+          if (btn !== button && index < 3) {
+            btn.style.background = 'rgba(15, 23, 42, 0.6)';
+            btn.style.border = '1px solid rgba(148, 163, 184, 0.2)';
+            btn.style.color = '#fff';
+          }
+        });
+        this.style.background = '#1FC7D4';
+        this.style.border = 'none';
+        this.style.color = '#0d1620';
+      });
+    }
+  });
+});
+
+// AI Coach functionality with Gemini API
+const API_KEY = "";
+const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${API_KEY}`;
+
+async function sendMessage() {
+  const input = document.getElementById('aiInput');
+  const message = input.value.trim();
+  
+  if (!message) return;
+  
+  // Add user message to chat
+  addMessageToChat('user', message);
+  input.value = '';
+  
+  // Show loading indicator
+  const loadingId = addMessageToChat('ai', 'Thinking...');
+  
+  try {
+    const response = await fetch(GEMINI_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        contents: [{
+          parts: [{
+            text: `You are a professional fitness coach and personal trainer. Provide helpful, accurate, and motivating fitness advice. User question: ${message}`
+          }]
+        }]
+      })
+    });
+
+    
+    const data = await response.json();
+    
+    document.getElementById(loadingId).remove();
+    
+    if (data.candidates && data.candidates[0].content.parts[0].text) {
+      const aiResponse = data.candidates[0].content.parts[0].text;
+      addMessageToChat('ai', aiResponse);
+    } else {
+      addMessageToChat('ai', 'Sorry, I couldn\'t process that. Please try again.');
+    }
+  } catch (error) {
+    console.error('AI Error:', error);
+    document.getElementById(loadingId).remove();
+    addMessageToChat('ai', 'Sorry, there was an error connecting to the AI coach. Please check your API key and try again.');
+  }
+}
+
+function addMessageToChat(sender, message) {
+  const chatMessages = document.getElementById('chatMessages');
+  const messageId = 'msg-' + Date.now();
+  
+  const messageDiv = document.createElement('div');
+  messageDiv.id = messageId;
+  messageDiv.style.cssText = `
+    background: ${sender === 'user' ? 'rgba(31, 199, 212, 0.2)' : 'rgba(31, 199, 212, 0.1)'};
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 15px;
+    ${sender === 'user' ? 'margin-left: 40px;' : ''}
+  `;
+  
+  const senderLabel = document.createElement('p');
+  senderLabel.style.cssText = 'color: #94a3b8; margin-bottom: 10px; font-size: 13px; font-weight: bold;';
+  senderLabel.textContent = sender === 'user' ? 'You' : 'AI Coach';
+  
+  const messageText = document.createElement('p');
+  messageText.style.cssText = 'line-height: 1.6; white-space: pre-wrap;';
+  messageText.textContent = message;
+  
+  messageDiv.appendChild(senderLabel);
+  messageDiv.appendChild(messageText);
+  chatMessages.appendChild(messageDiv);
+  
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+  
+  return messageId;
+}
+
+function askAI(question) {
+  const input = document.getElementById('aiInput');
+  input.value = question;
+  sendMessage();
+}
+</script>
+</body>
+</html>
