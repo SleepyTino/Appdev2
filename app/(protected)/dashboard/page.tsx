@@ -33,8 +33,8 @@ async function getStats(userId: string) {
       .gte("created_at", new Date(now.setHours(0, 0, 0, 0)).toISOString()),
   ]);
 
-  const workouts = workoutsRes.data || [];
-  const meals = mealsRes.data || [];
+  const workouts = (workoutsRes.data || []) as { id: string; calories_burned: number | null; duration_minutes: number | null }[];
+  const meals = (mealsRes.data || []) as { calories: number | null }[];
 
   const totalCaloriesBurned = workouts.reduce(
     (sum, w) => sum + (w.calories_burned || 0),

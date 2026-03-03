@@ -59,12 +59,13 @@ export default function ProfilePage() {
     );
 
     // Load extended profile from users table
-    const { data: profile } = await supabase
+    const { data: profileData } = await supabase
       .from("users")
       .select("*")
       .eq("id", user.id)
       .single();
 
+    const profile = profileData as { phone: string | null; date_of_birth: string | null; gender: string | null; fitness_goal: string | null; target_weight: number | null; workouts_per_week: number | null; workout_duration: number | null; difficulty_level: string | null } | null;
     if (profile) {
       setPhone(profile.phone || "");
       setDob(profile.date_of_birth || "");
@@ -85,7 +86,7 @@ export default function ProfilePage() {
       } = await supabase.auth.getUser();
       if (!user) return;
 
-      await supabase.from("users").upsert({
+      await (supabase.from("users") as any).upsert({
         id: user.id,
         email: user.email,
         ...data,

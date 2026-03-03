@@ -69,7 +69,7 @@ export default function MealsPage() {
       .gte("created_at", todayStart.toISOString())
       .order("created_at", { ascending: false });
 
-    setMeals(data || []);
+    setMeals((data || []) as MealEntry[]);
     setIsLoading(false);
   };
 
@@ -83,7 +83,7 @@ export default function MealsPage() {
       } = await supabase.auth.getUser();
       if (!user) return;
 
-      const { error } = await supabase.from("meals").insert({
+      const { error } = await (supabase.from("meals") as any).insert({
         user_id: user.id,
         meal_type: mealType,
         food_item: foodItem,
@@ -111,7 +111,7 @@ export default function MealsPage() {
   };
 
   const deleteMeal = async (id: string) => {
-    await supabase.from("meals").delete().eq("id", id);
+    await (supabase.from("meals") as any).delete().eq("id", id);
     setMeals((prev) => prev.filter((m) => m.id !== id));
   };
 

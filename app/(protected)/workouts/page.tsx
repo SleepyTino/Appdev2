@@ -131,7 +131,7 @@ export default function WorkoutsPage() {
 
       if (user) {
         const durationNum = parseInt(activeWorkout.duration) || 30;
-        await supabase.from("workouts").insert({
+        await (supabase.from("workouts") as any).insert({
           user_id: user.id,
           title: activeWorkout.title,
           description: activeWorkout.category,

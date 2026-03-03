@@ -26,8 +26,8 @@ async function getProgressData(userId: string) {
       .limit(7),
   ]);
 
-  const workouts = workoutsRes.data || [];
-  const progressLogs = progressRes.data || [];
+  const workouts = (workoutsRes.data || []) as { id: string; created_at: string; calories_burned: number | null; duration_minutes: number | null; title: string | null }[];
+  const progressLogs = (progressRes.data || []) as { id: string; logged_at: string; weight: number | null; body_fat_percentage: number | null; steps: number | null; active_minutes: number | null; notes: string | null }[];
 
   // Aggregate weekly data
   const dailyCalories: Record<string, number> = {};
