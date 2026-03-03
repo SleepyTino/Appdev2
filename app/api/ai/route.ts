@@ -3,9 +3,9 @@ import { NextRequest, NextResponse } from "next/server";
 // Force Node.js runtime (not Edge)
 export const runtime = "nodejs";
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-const GEMINI_BASE = "https://generativelanguage.googleapis.com/v1beta/models";
-const MODELS = ["gemini-2.0-flash-lite", "gemini-2.0-flash", "gemini-2.5-flash"];
+const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
+const OPENROUTER_BASE = "https://openrouter.ai/api/v1/chat/completions";
+const MODEL = "google/gemini-2.0-flash-001";
 
 const SYSTEM_PROMPT = `You are a professional fitness coach and personal trainer named "FitLife AI Coach". 
 You provide helpful, accurate, and motivating fitness advice. 
@@ -26,7 +26,7 @@ Guidelines:
 - Personalize advice when the user shares their details`;
 
 export async function POST(request: NextRequest) {
-  if (!GEMINI_API_KEY) {
+  if (!OPENROUTER_API_KEY) {
     return NextResponse.json(
       { error: "AI service not configured" },
       { status: 503 }
@@ -43,88 +43,41 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Call Gemini API with streaming - try multiple models for quota fallback
-    const requestBody = JSON.stringify({
-      contents: [
-        {
-          role: "user",
-          parts: [
-            {
-              text: `${SYSTEM_PROMPT}\n\nUser question: ${message}`,
-            },
-          ],
-        },
-      ],
-      generationConfig: {
-        temperature: 0.7,
-        topP: 0.95,
-        topK: 40,
-        maxOutputTokens: 2048,
+    const res = await fetch(OPENROUTER_BASE, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${OPENROUTER_API_KEY}`,
+        "HTTP-Referer": process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+        "X-Title": "FitLife AI Coach",
       },
-      safetySettings: [
-        {
-          category: "HARM_CATEGORY_HARASSMENT",
-          threshold: "BLOCK_MEDIUM_AND_ABOVE",
-        },
-        {
-          category: "HARM_CATEGORY_HATE_SPEECH",
-          threshold: "BLOCK_MEDIUM_AND_ABOVE",
-        },
-        {
-          category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-          threshold: "BLOCK_MEDIUM_AND_ABOVE",
-        },
-        {
-          category: "HARM_CATEGORY_DANGEROUS_CONTENT",
-          threshold: "BLOCK_MEDIUM_AND_ABOVE",
-        },
-      ],
+      body: JSON.stringify({
+        model: MODEL,
+        stream: true,
+        messages: [
+          { role: "system", content: SYSTEM_PROMPT },
+          { role: "user", content: message },
+        ],
+        temperature: 0.7,
+        top_p: 0.95,
+        max_tokens: 2048,
+      }),
     });
 
-    let geminiResponse: Response | null = null;
-    let lastError = "";
-
-    for (const model of MODELS) {
-      const apiUrl = `${GEMINI_BASE}/${model}:streamGenerateContent?alt=sse&key=${encodeURIComponent(GEMINI_API_KEY)}`;
-      console.log(`Trying model: ${model}`);
-      
-      const res = await fetch(apiUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: requestBody,
-      });
-
-      if (res.ok) {
-        geminiResponse = res;
-        console.log(`Success with model: ${model}`);
-        break;
-      }
-
+    if (!res.ok) {
       const errorData = await res.text();
-      console.error(`Model ${model} failed (${res.status}):`, errorData.slice(0, 200));
-      lastError = errorData;
-
-      // Only retry on rate limit (429) or model not found (404)
-      if (res.status !== 429 && res.status !== 404) {
-        return NextResponse.json(
-          { error: `Gemini API error: ${res.status}` },
-          { status: 502 }
-        );
-      }
-    }
-
-    if (!geminiResponse) {
+      console.error(`OpenRouter error (${res.status}):`, errorData.slice(0, 300));
       return NextResponse.json(
-        { error: "All AI models are currently rate limited. Please try again in a minute." },
-        { status: 429 }
+        { error: `AI service error: ${res.status}` },
+        { status: 502 }
       );
     }
 
-    // Stream the response back to client
+    // Stream the response back to client (OpenAI-compatible SSE format)
     const encoder = new TextEncoder();
     const stream = new ReadableStream({
       async start(controller) {
-        const reader = geminiResponse.body?.getReader();
+        const reader = res.body?.getReader();
         if (!reader) {
           controller.close();
           return;
@@ -140,7 +93,6 @@ export async function POST(request: NextRequest) {
 
             buffer += decoder.decode(value, { stream: true });
 
-            // Process SSE events
             const lines = buffer.split("\n");
             buffer = lines.pop() || "";
 
@@ -151,8 +103,7 @@ export async function POST(request: NextRequest) {
 
                 try {
                   const parsed = JSON.parse(jsonStr);
-                  const text =
-                    parsed.candidates?.[0]?.content?.parts?.[0]?.text;
+                  const text = parsed.choices?.[0]?.delta?.content;
                   if (text) {
                     controller.enqueue(encoder.encode(text));
                   }
@@ -183,5 +134,7 @@ export async function POST(request: NextRequest) {
       { error: "Internal server error" },
       { status: 500 }
     );
+  }
+}
   }
 }
