@@ -87,21 +87,7 @@ export default function LoginPage() {
             analytics — all in one platform.
           </p>
 
-          {/* Social proof */}
-          <div className="flex items-center gap-8 mt-12 pt-8 border-t border-white/5">
-            <div>
-              <p className="text-2xl font-bold text-white">10K+</p>
-              <p className="text-xs text-slate-500">Active Users</p>
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-white">50K+</p>
-              <p className="text-xs text-slate-500">Workouts Logged</p>
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-white">4.9</p>
-              <p className="text-xs text-slate-500">User Rating</p>
-            </div>
-          </div>
+
         </div>
       </div>
 
