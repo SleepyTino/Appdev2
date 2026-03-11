@@ -127,7 +127,7 @@ export default function ProfilePage() {
   // Overview
   if (activeTab === "overview") {
     return (
-      <div className="space-y-6 max-w-2xl mx-auto lg:mx-0">
+      <div className="space-y-6 max-w-2xl mx-auto">
         <h1 className="text-2xl font-bold text-white">Profile</h1>
 
         {/* Avatar & Name */}
@@ -177,7 +177,7 @@ export default function ProfilePage() {
   // Personal Information
   if (activeTab === "personal") {
     return (
-      <div className="space-y-6 max-w-2xl mx-auto lg:mx-0">
+      <div className="space-y-6 max-w-2xl mx-auto">
         <button
           onClick={() => setActiveTab("overview")}
           className="text-sm text-slate-400 hover:text-white transition-colors"
@@ -243,7 +243,7 @@ export default function ProfilePage() {
   // Fitness Goals
   if (activeTab === "goals") {
     return (
-      <div className="space-y-6 max-w-2xl mx-auto lg:mx-0">
+      <div className="space-y-6 max-w-2xl mx-auto">
         <button
           onClick={() => setActiveTab("overview")}
           className="text-sm text-slate-400 hover:text-white transition-colors"
@@ -316,7 +316,7 @@ export default function ProfilePage() {
   // Activity Settings
   if (activeTab === "settings") {
     return (
-      <div className="space-y-6 max-w-2xl mx-auto lg:mx-0">
+      <div className="space-y-6 max-w-2xl mx-auto">
         <button
           onClick={() => setActiveTab("overview")}
           className="text-sm text-slate-400 hover:text-white transition-colors"
@@ -381,7 +381,7 @@ export default function ProfilePage() {
   // Privacy & Security
   if (activeTab === "privacy") {
     return (
-      <div className="space-y-6 max-w-2xl mx-auto lg:mx-0">
+      <div className="space-y-6 max-w-2xl mx-auto">
         <button
           onClick={() => setActiveTab("overview")}
           className="text-sm text-slate-400 hover:text-white transition-colors"
