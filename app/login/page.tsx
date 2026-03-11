@@ -150,9 +150,9 @@ export default function LoginPage() {
               </button>
             </div>
 
-            <div className="flex justify-end">
+            <div className="relative z-10 flex justify-end">
               <Link
-                href="#"
+                href="/forgot-password"
                 className="text-xs text-slate-400 hover:text-brand-400 transition-colors"
               >
                 Forgot password?
