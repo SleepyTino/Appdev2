@@ -128,7 +128,7 @@ export default function LoginPage() {
               onChange={(e) => setEmail(e.target.value)}
               icon={<Mail className="w-4 h-4" />}
             />
-            <div className="relative">
+            <div>
               <Input
                 label="Password"
                 type={showPassword ? "text" : "password"}
@@ -137,20 +137,26 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 icon={<Lock className="w-4 h-4" />}
               />
+            </div>
+
+            <div className="flex items-center justify-between -mt-1">
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-[38px] text-slate-500 hover:text-slate-300 transition-colors"
+                className="text-xs text-slate-500 hover:text-slate-300 transition-colors flex items-center gap-1"
               >
                 {showPassword ? (
-                  <EyeOff className="w-4 h-4" />
+                  <>
+                    <EyeOff className="w-3.5 h-3.5" />
+                    Hide
+                  </>
                 ) : (
-                  <Eye className="w-4 h-4" />
+                  <>
+                    <Eye className="w-3.5 h-3.5" />
+                    Show
+                  </>
                 )}
               </button>
-            </div>
-
-            <div className="relative z-10 flex justify-end">
               <Link
                 href="/forgot-password"
                 className="text-xs text-slate-400 hover:text-brand-400 transition-colors"
