@@ -124,7 +124,7 @@ export default async function ProgressPage() {
           },
           {
             icon: Target,
-            value: data.latestWeight ? `${data.latestWeight} lbs` : "—",
+            value: data.latestWeight ? `${data.latestWeight} kg` : "—",
             label: "Weight",
             sub: "Current",
             iconColor: "text-green-400",

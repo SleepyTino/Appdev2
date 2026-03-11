@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS public.users (
   phone TEXT,
   fitness_goal TEXT CHECK (fitness_goal IN ('weight_loss', 'muscle_gain', 'endurance', 'flexibility', 'general_fitness')),
   target_weight NUMERIC,
+  weight NUMERIC,
   workouts_per_week INTEGER DEFAULT 3,
   workout_duration INTEGER DEFAULT 45,
   difficulty_level TEXT DEFAULT 'intermediate' CHECK (difficulty_level IN ('beginner', 'intermediate', 'advanced')),

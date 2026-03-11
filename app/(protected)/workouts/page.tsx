@@ -125,9 +125,75 @@ export default function WorkoutsPage() {
   const [timeRemaining, setTimeRemaining] = useState(0);
   const [elapsedTime, setElapsedTime] = useState(0);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
+  const [timerAlarmPlaying, setTimerAlarmPlaying] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const alarmIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const supabase = createClient();
+
+  // Play alarm sound using Web Audio API
+  const playAlarm = useCallback(() => {
+    if (alarmIntervalRef.current) return;
+    setTimerAlarmPlaying(true);
+
+    const playBeep = () => {
+      try {
+        const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+        audioContextRef.current = ctx;
+
+        // Three-tone alarm beep
+        const times = [0, 0.15, 0.3];
+        const freqs = [830, 1000, 830];
+        times.forEach((t, i) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.frequency.value = freqs[i];
+          osc.type = "square";
+          gain.gain.setValueAtTime(0.3, ctx.currentTime + t);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + t + 0.12);
+          osc.start(ctx.currentTime + t);
+          osc.stop(ctx.currentTime + t + 0.12);
+        });
+      } catch {
+        // Audio not supported
+      }
+    };
+
+    playBeep();
+    alarmIntervalRef.current = setInterval(playBeep, 2000);
+
+    // Also show browser notification
+    if ("Notification" in window && Notification.permission === "granted") {
+      new Notification("FitLife - Timer Complete!", {
+        body: "Your workout timer has finished! Great job! 💪",
+        icon: "/favicon.ico",
+      });
+    } else if ("Notification" in window && Notification.permission !== "denied") {
+      Notification.requestPermission().then((perm) => {
+        if (perm === "granted") {
+          new Notification("FitLife - Timer Complete!", {
+            body: "Your workout timer has finished! Great job! 💪",
+            icon: "/favicon.ico",
+          });
+        }
+      });
+    }
+  }, []);
+
+  const stopAlarm = useCallback(() => {
+    setTimerAlarmPlaying(false);
+    if (alarmIntervalRef.current) {
+      clearInterval(alarmIntervalRef.current);
+      alarmIntervalRef.current = null;
+    }
+    if (audioContextRef.current) {
+      audioContextRef.current.close().catch(() => {});
+      audioContextRef.current = null;
+    }
+  }, []);
 
   // Calories calculation
   const totalCalories = activeWorkout
@@ -147,6 +213,7 @@ export default function WorkoutsPage() {
         setTimeRemaining((prev) => {
           if (prev <= 1) {
             setIsTimerRunning(false);
+            playAlarm();
             return 0;
           }
           return prev - 1;
@@ -157,7 +224,14 @@ export default function WorkoutsPage() {
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [isTimerRunning, timeRemaining]);
+  }, [isTimerRunning, timeRemaining, playAlarm]);
+
+  // Request notification permission on mount
+  useEffect(() => {
+    if ("Notification" in window && Notification.permission === "default") {
+      Notification.requestPermission();
+    }
+  }, []);
 
   const startTimer = useCallback((minutes: number) => {
     setTimeRemaining(minutes * 60);
@@ -225,6 +299,7 @@ export default function WorkoutsPage() {
     setTimeRemaining(0);
     setElapsedTime(0);
     setIsTimerRunning(false);
+    stopAlarm();
     if (timerRef.current) clearInterval(timerRef.current);
   };
 
@@ -404,6 +479,15 @@ export default function WorkoutsPage() {
               />
             </div>
           </div>
+          {timerAlarmPlaying && (
+            <button
+              onClick={stopAlarm}
+              className="mt-3 w-full py-2.5 rounded-xl bg-red-500/20 border border-red-500/30 text-red-400 text-sm font-semibold
+                         hover:bg-red-500/30 transition-all animate-pulse"
+            >
+              🔔 Dismiss Alarm
+            </button>
+          )}
         </Card>
 
         {/* Stats row */}
