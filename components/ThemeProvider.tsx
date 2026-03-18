@@ -17,7 +17,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     setMounted(true);
-    const stored = localStorage.getItem("theme") as Theme | null;
+    const stored = localStorage.getItem("fitlife-theme") as Theme | null;
     if (stored) {
       setTheme(stored);
     }
@@ -28,7 +28,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       const root = document.documentElement;
       root.classList.remove("light", "dark");
       root.classList.add(theme);
-      localStorage.setItem("theme", theme);
+      localStorage.setItem("fitlife-theme", theme);
     }
   }, [theme, mounted]);
 
@@ -36,8 +36,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     setTheme((prev) => (prev === "dark" ? "light" : "dark"));
   };
 
+  // Show children with opacity 0 during hydration to prevent flash
   if (!mounted) {
-    return null;
+    return <div style={{ visibility: "hidden" }}>{children}</div>;
   }
 
   return (
