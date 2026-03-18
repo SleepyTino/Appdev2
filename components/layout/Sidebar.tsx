@@ -37,11 +37,9 @@ export default function Sidebar() {
 
   return (
     <aside className="hidden lg:flex lg:flex-col w-64 min-h-screen 
-                      bg-slate-900/80 dark:bg-slate-900/80 
-                      light:bg-white/80
+                      bg-white dark:bg-slate-900/80 
                       backdrop-blur-xl border-r 
-                      border-white/5 dark:border-white/5 
-                      light:border-gray-200 
+                      border-gray-200 dark:border-white/5 
                       p-6 transition-colors duration-300">
       {/* Logo */}
       <Link href="/dashboard" className="flex items-center gap-3 mb-10">
@@ -49,10 +47,10 @@ export default function Sidebar() {
           <Flame className="w-5 h-5 text-white" />
         </div>
         <div>
-          <h1 className="text-xl font-bold text-white dark:text-white tracking-tight">
+          <h1 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight">
             FitLife
           </h1>
-          <p className="text-[10px] text-slate-500 dark:text-slate-500 uppercase tracking-widest">
+          <p className="text-[10px] text-gray-500 dark:text-slate-500 uppercase tracking-widest">
             Fitness & Wellness
           </p>
         </div>
@@ -60,7 +58,7 @@ export default function Sidebar() {
 
       {/* Navigation */}
       <nav className="flex-1 space-y-1">
-        <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-500 uppercase tracking-wider mb-3 px-4">
+        <p className="text-[11px] font-semibold text-gray-500 dark:text-slate-500 uppercase tracking-wider mb-3 px-4">
           Menu
         </p>
         {navItems.map((item) => {
@@ -76,7 +74,7 @@ export default function Sidebar() {
                 ${
                   isActive
                     ? "text-brand-400 bg-brand-400/10 border border-brand-400/20"
-                    : "text-slate-400 dark:text-slate-400 hover:text-white dark:hover:text-white hover:bg-white/5 dark:hover:bg-white/5 border border-transparent"
+                    : "text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/5 border border-transparent"
                 }
               `}
             >
@@ -88,11 +86,11 @@ export default function Sidebar() {
       </nav>
 
       {/* Logout */}
-      <div className="border-t border-white/5 dark:border-white/5 pt-4 mt-4">
+      <div className="border-t border-gray-200 dark:border-white/5 pt-4 mt-4">
         <button
           onClick={handleSignOut}
           className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium
-                     text-slate-400 dark:text-slate-400 hover:text-red-400 hover:bg-red-500/5
+                     text-gray-600 dark:text-slate-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/5
                      transition-all duration-200 w-full"
         >
           <LogOut className="w-[18px] h-[18px]" />

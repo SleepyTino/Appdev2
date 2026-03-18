@@ -77,11 +77,11 @@ export default async function DashboardPage() {
     <div className="space-y-8">
       {/* Welcome Section */}
       <div>
-        <h1 className="text-2xl sm:text-3xl font-bold text-white">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
           {greeting},{" "}
           <span className="gradient-text">{userName}</span>
         </h1>
-        <p className="text-slate-400 mt-1">
+        <p className="text-gray-600 dark:text-slate-400 mt-1">
           Let&apos;s crush your goals today!
         </p>
       </div>
@@ -124,8 +124,8 @@ export default async function DashboardPage() {
         ].map((stat) => (
           <div
             key={stat.label + stat.sublabel}
-            className="bg-slate-800/60 backdrop-blur-sm rounded-2xl border border-white/5 p-5 
-                       hover:border-white/10 transition-all duration-300"
+            className="bg-white dark:bg-slate-800/60 backdrop-blur-sm rounded-2xl border border-gray-200 dark:border-white/5 p-5 
+                       hover:border-gray-300 dark:hover:border-white/10 transition-all duration-300 shadow-sm dark:shadow-none"
           >
             <div
               className={`w-10 h-10 rounded-xl bg-gradient-to-br ${stat.color} 
@@ -133,11 +133,11 @@ export default async function DashboardPage() {
             >
               <stat.icon className={`w-5 h-5 ${stat.iconColor}`} />
             </div>
-            <p className="text-2xl font-bold text-white">{stat.value}</p>
-            <p className="text-xs text-slate-400 mt-1">
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">{stat.value}</p>
+            <p className="text-xs text-gray-600 dark:text-slate-400 mt-1">
               {stat.label}
               <br />
-              <span className="text-slate-500">{stat.sublabel}</span>
+              <span className="text-gray-500 dark:text-slate-500">{stat.sublabel}</span>
             </p>
           </div>
         ))}
@@ -145,7 +145,7 @@ export default async function DashboardPage() {
 
       {/* Quick Actions */}
       <div>
-        <h2 className="text-lg font-semibold text-white mb-4">Quick Actions</h2>
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Quick Actions</h2>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {[
             {
@@ -179,7 +179,7 @@ export default async function DashboardPage() {
                   ${
                     action.primary
                       ? "bg-gradient-to-r from-brand-400/10 to-brand-600/10 border-brand-400/20 hover:border-brand-400/40"
-                      : "bg-slate-800/60 border-white/5 hover:border-white/10"
+                      : "bg-white dark:bg-slate-800/60 border-gray-200 dark:border-white/5 hover:border-gray-300 dark:hover:border-white/10"
                   }
                   hover:-translate-y-0.5 hover:shadow-lg
                 `}
@@ -192,10 +192,10 @@ export default async function DashboardPage() {
                   <action.icon className="w-5 h-5 text-white" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-white text-sm">{action.title}</p>
-                  <p className="text-xs text-slate-400">{action.description}</p>
+                  <p className="font-semibold text-gray-900 dark:text-white text-sm">{action.title}</p>
+                  <p className="text-xs text-gray-600 dark:text-slate-400">{action.description}</p>
                 </div>
-                <ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-brand-400 transition-colors flex-shrink-0" />
+                <ChevronRight className="w-4 h-4 text-gray-400 dark:text-slate-500 group-hover:text-brand-400 transition-colors flex-shrink-0" />
               </div>
             </Link>
           ))}
@@ -205,8 +205,8 @@ export default async function DashboardPage() {
       {/* Recent Activity / Tip */}
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Activity Summary */}
-        <div className="bg-slate-800/60 backdrop-blur-sm rounded-2xl border border-white/5 p-6">
-          <h3 className="font-semibold text-white mb-4">Weekly Overview</h3>
+        <div className="bg-white dark:bg-slate-800/60 backdrop-blur-sm rounded-2xl border border-gray-200 dark:border-white/5 p-6 shadow-sm dark:shadow-none">
+          <h3 className="font-semibold text-gray-900 dark:text-white mb-4">Weekly Overview</h3>
           <div className="flex items-end justify-between gap-2 h-32">
             {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map(
               (day, i) => {
@@ -217,7 +217,7 @@ export default async function DashboardPage() {
                       className="w-full bg-gradient-to-t from-brand-400 to-brand-300 rounded-t-lg transition-all duration-500"
                       style={{ height: `${heights[i]}%` }}
                     />
-                    <span className="text-[10px] text-slate-500">{day}</span>
+                    <span className="text-[10px] text-gray-500 dark:text-slate-500">{day}</span>
                   </div>
                 );
               }
@@ -232,8 +232,8 @@ export default async function DashboardPage() {
               <Zap className="w-5 h-5 text-brand-400" />
             </div>
             <div>
-              <h3 className="font-semibold text-white mb-2">Daily Tip</h3>
-              <p className="text-sm text-slate-300 leading-relaxed">
+              <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Daily Tip</h3>
+              <p className="text-sm text-gray-700 dark:text-slate-300 leading-relaxed">
                 Consistency is key! Even a 20-minute workout is better than
                 skipping. Your body adapts to regular training — keep showing up.
               </p>
